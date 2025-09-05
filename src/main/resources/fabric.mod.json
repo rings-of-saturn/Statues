@@ -18,6 +18,9 @@
     ],
     "main": [
       "rings_of_saturn.github.io.statues.Statues"
+    ],
+    "cardinal-components": [
+      "rings_of_saturn.github.io.statues.entity.components.ModComponents"
     ]
   },
   "mixins": [
@@ -31,5 +34,16 @@
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "cardinal-components": [
+      "statues:slim",
+      "statues:right_arm_angle",
+      "statues:left_arm_angle",
+      "statues:right_leg_angle",
+      "statues:left_leg_angle",
+      "statues:head_angle",
+      "statues:body_angle"
+    ]
   }
 }

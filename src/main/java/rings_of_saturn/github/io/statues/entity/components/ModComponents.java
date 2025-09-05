@@ -1,34 +1,40 @@
-package rings_of_saturn.github.io.fragments.entity.components;
+package rings_of_saturn.github.io.statues.entity.components;
 
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
-import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
-import rings_of_saturn.github.io.fragments.entity.components.custom.FragmentsComponent;
-import rings_of_saturn.github.io.fragments.entity.components.custom.GhostComponent;
-import rings_of_saturn.github.io.fragments.entity.components.custom.LivesComponent;
-import rings_of_saturn.github.io.fragments.entity.components.custom.GhostTimerComponent;
+import rings_of_saturn.github.io.statues.entity.components.custom.AngleComponent;
+import rings_of_saturn.github.io.statues.entity.components.custom.SlimComponent;
+import rings_of_saturn.github.io.statues.entity.custom.StatueEntity;
 
-import static rings_of_saturn.github.io.fragments.Fragments.MOD_ID;
+import static rings_of_saturn.github.io.statues.Statues.MOD_ID;
 
 public class ModComponents implements EntityComponentInitializer {
-    public static final ComponentKey<LivesComponent> LIVES =
-            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "lives"), LivesComponent.class);
-    public static final ComponentKey<FragmentsComponent> FRAGMENTS =
-            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "fragments"), FragmentsComponent.class);
-    public static final ComponentKey<GhostComponent> GHOST =
-            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "ghost"), GhostComponent.class);
-    public static final ComponentKey<GhostTimerComponent> TIMER =
-            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "ghost_timer"), GhostTimerComponent.class);
+    public static final ComponentKey<AngleComponent> LEFT_ARM_ANGLE =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "left_arm_angle"), AngleComponent.class);
+    public static final ComponentKey<AngleComponent> RIGHT_ARM_ANGLE =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "right_arm_angle"), AngleComponent.class);
+    public static final ComponentKey<AngleComponent> RIGHT_LEG_ANGLE =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "right_leg_angle"), AngleComponent.class);
+    public static final ComponentKey<AngleComponent> LEFT_LEG_ANGLE =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "left_leg_angle"), AngleComponent.class);
+    public static final ComponentKey<AngleComponent> HEAD_ANGLE =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "head_angle"), AngleComponent.class);
+    public static final ComponentKey<AngleComponent> BODY_ANGLE =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "body_angle"), AngleComponent.class);
+    public static final ComponentKey<SlimComponent> SLIM =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "slim"), SlimComponent.class);
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry entityComponentFactoryRegistry) {
-        entityComponentFactoryRegistry.beginRegistration(PlayerEntity.class, GHOST).impl(GhostComponent.class).respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY).end(GhostComponent::new);
-        entityComponentFactoryRegistry.registerForPlayers(LIVES, player -> new LivesComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(FRAGMENTS, player -> new FragmentsComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(TIMER, player -> new GhostTimerComponent(), RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, LEFT_ARM_ANGLE, statueEntity -> new AngleComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, RIGHT_ARM_ANGLE, statueEntity -> new AngleComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, LEFT_LEG_ANGLE, statueEntity -> new AngleComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, RIGHT_LEG_ANGLE, statueEntity -> new AngleComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, HEAD_ANGLE, statueEntity -> new AngleComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, BODY_ANGLE, statueEntity -> new AngleComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, SLIM, statueEntity -> new SlimComponent());
     }
 }
