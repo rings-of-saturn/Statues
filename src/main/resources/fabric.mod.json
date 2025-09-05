@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "statues",
+  "version": "${version}",
+  "name": "Statues",
+  "description": "Adds posable Statues",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/statues/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "rings_of_saturn.github.io.statues.client.StatuesDataGenerator"
+    ],
+    "client": [
+      "rings_of_saturn.github.io.statues.client.StatuesClient"
+    ],
+    "main": [
+      "rings_of_saturn.github.io.statues.Statues"
+    ]
+  },
+  "mixins": [
+    "statues.mixins.json",
+    {
+      "config": "statues.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
