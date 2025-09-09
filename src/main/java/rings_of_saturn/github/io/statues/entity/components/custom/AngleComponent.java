@@ -2,28 +2,40 @@ package rings_of_saturn.github.io.statues.entity.components.custom;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
-import rings_of_saturn.github.io.statues.entity.components.custom.types.IntArrayComponent;
+import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+import rings_of_saturn.github.io.statues.entity.components.custom.types.FloatArrayComponent;
 
-public class AngleComponent implements IntArrayComponent {
-    private int[] value = new int[3];
+import java.util.Arrays;
+
+public class AngleComponent implements FloatArrayComponent, AutoSyncedComponent {
+    private float[] value = new float[3];
+    private static final int floatPrecision = 100;
     @Override
-    public int[] getValue() {
+    public float[] getValue() {
         return this.value;
     }
 
 
     @Override
-    public void set(int[] amount) {
+    public void set(float[] amount) {
         this.value = amount;
     }
 
     @Override
     public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
-        this.value = nbtCompound.getIntArray("value");
+        float[] newArray = new float[3];
+        newArray[0] = (float) nbtCompound.getIntArray("value")[0] /floatPrecision;
+        newArray[1] = (float) nbtCompound.getIntArray("value")[1] /floatPrecision;
+        newArray[2] = (float) nbtCompound.getIntArray("value")[2] /floatPrecision;
+        this.value = newArray;
     }
 
     @Override
     public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
-        nbtCompound.putIntArray("value", this.value);
+        int[] newArray = new int[3];
+        newArray[0] = (int) (this.value[0]*floatPrecision);
+        newArray[1] = (int) (this.value[1]*floatPrecision);
+        newArray[2] = (int) (this.value[2]*floatPrecision);
+        nbtCompound.putIntArray("value", newArray);
     }
 }

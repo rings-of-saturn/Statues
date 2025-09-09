@@ -2,9 +2,10 @@ package rings_of_saturn.github.io.statues.entity.components.custom;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
+import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import rings_of_saturn.github.io.statues.entity.components.custom.types.BooleanComponent;
 
-public class SlimComponent implements BooleanComponent {
+public class SlimComponent implements BooleanComponent, AutoSyncedComponent {
     private boolean value;
     @Override
     public boolean getValue() {

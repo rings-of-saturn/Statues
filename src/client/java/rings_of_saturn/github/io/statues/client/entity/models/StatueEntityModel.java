@@ -92,36 +92,56 @@ public class StatueEntityModel extends EntityModel<StatueEntity> {
 	@Override
 	public void setAngles(StatueEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		if(StatuePosingUtil.getSlim(entity)) {
-			right_arm_slim.translate(new Vector3f(StatuePosingUtil.getArmRot(entity, true)[0],
-					StatuePosingUtil.getArmRot(entity, true)[1],
-					StatuePosingUtil.getArmRot(entity, true)[2]));
-			left_arm_slim.translate(new Vector3f(StatuePosingUtil.getArmRot(entity, false)[0],
-					StatuePosingUtil.getArmRot(entity, false)[1],
-					StatuePosingUtil.getArmRot(entity, false)[2]));
-			right_arm_wide.scale(new Vector3f(0,0,0));
-			left_arm_wide.scale(new Vector3f(0,0,0));
+			right_arm_slim.hidden = false;
+			left_arm_slim.hidden = false;
+			right_sleeve_slim.hidden = false;
+			left_sleeve_slim.hidden = false;
+
+			right_arm_slim.pitch = StatuePosingUtil.getArmRot(entity, true)[0];
+			right_arm_slim.yaw = StatuePosingUtil.getArmRot(entity, true)[1];
+			right_arm_slim.roll = StatuePosingUtil.getArmRot(entity, true)[2];
+
+			left_arm_slim.pitch = StatuePosingUtil.getArmRot(entity, false)[0];
+			left_arm_slim.yaw = StatuePosingUtil.getArmRot(entity, false)[1];
+			left_arm_slim.roll = StatuePosingUtil.getArmRot(entity, false)[2];
+			right_arm_wide.hidden = true;
+			left_arm_wide.hidden = true;
+			right_sleeve_wide.hidden = true;
+			left_sleeve_wide.hidden = true;
 		} else {
-			right_arm_wide.translate(new Vector3f(StatuePosingUtil.getArmRot(entity, true)[0],
-					StatuePosingUtil.getArmRot(entity, true)[1],
-					StatuePosingUtil.getArmRot(entity, true)[2]));
-			left_arm_wide.translate(new Vector3f(StatuePosingUtil.getArmRot(entity, false)[0],
-					StatuePosingUtil.getArmRot(entity, false)[1],
-					StatuePosingUtil.getArmRot(entity, false)[2]));
-			right_arm_slim.scale(new Vector3f(0,0,0));
-			left_arm_slim.scale(new Vector3f(0,0,0));
+			right_arm_wide.hidden = false;
+			left_arm_wide.hidden = false;
+			right_sleeve_wide.hidden = false;
+			left_sleeve_wide.hidden = false;
+
+			right_arm_wide.pitch = StatuePosingUtil.getArmRot(entity, true)[0];
+			right_arm_wide.yaw = StatuePosingUtil.getArmRot(entity, true)[1];
+			right_arm_wide.roll = StatuePosingUtil.getArmRot(entity, true)[2];
+
+			left_arm_wide.pitch = StatuePosingUtil.getArmRot(entity, false)[0];
+			left_arm_wide.yaw = StatuePosingUtil.getArmRot(entity, false)[1];
+			left_arm_wide.roll = StatuePosingUtil.getArmRot(entity, false)[2];
+
+			right_arm_slim.hidden = true;
+			left_arm_slim.hidden = true;
+			right_sleeve_slim.hidden = true;
+			left_sleeve_slim.hidden = true;
 		}
-		right_leg.translate(new Vector3f(StatuePosingUtil.getLegRot(entity, true)[0],
-				StatuePosingUtil.getArmRot(entity, true)[1],
-				StatuePosingUtil.getArmRot(entity, true)[2]));
-		left_leg.translate(new Vector3f(StatuePosingUtil.getLegRot(entity, false)[0],
-				StatuePosingUtil.getArmRot(entity, false)[1],
-				StatuePosingUtil.getArmRot(entity, false)[2]));
-		head.translate(new Vector3f(StatuePosingUtil.getHeadRot(entity)[0],
-				StatuePosingUtil.getHeadRot(entity)[1],
-				StatuePosingUtil.getHeadRot(entity)[2]));
-		body.translate(new Vector3f(StatuePosingUtil.getBodyRot(entity)[0],
-				StatuePosingUtil.getBodyRot(entity)[1],
-				StatuePosingUtil.getBodyRot(entity)[2]));
+		right_leg.pitch = StatuePosingUtil.getLegRot(entity, true)[0];
+		right_leg.yaw = StatuePosingUtil.getLegRot(entity, true)[1];
+		right_leg.roll = StatuePosingUtil.getLegRot(entity, true)[2];
+
+		left_leg.pitch = StatuePosingUtil.getLegRot(entity, false)[0];
+		left_leg.yaw = StatuePosingUtil.getLegRot(entity, false)[1];
+		left_leg.roll = StatuePosingUtil.getLegRot(entity, false)[2];
+
+		head.pitch = StatuePosingUtil.getHeadRot(entity)[0];
+		head.yaw = StatuePosingUtil.getHeadRot(entity)[1];
+		head.roll = StatuePosingUtil.getHeadRot(entity)[2];
+
+		body.pitch = StatuePosingUtil.getBodyRot(entity)[0];
+		body.yaw = StatuePosingUtil.getBodyRot(entity)[1];
+		body.roll = StatuePosingUtil.getBodyRot(entity)[2];
 	}
 
 	@Override
@@ -130,6 +150,8 @@ public class StatueEntityModel extends EntityModel<StatueEntity> {
 		body.render(matrices, vertices, light, overlay, color);
 		left_arm_slim.render(matrices, vertices, light, overlay, color);
 		right_arm_slim.render(matrices, vertices, light, overlay, color);
+		left_arm_wide.render(matrices, vertices, light, overlay, color);
+		right_arm_wide.render(matrices, vertices, light, overlay, color);
 		left_leg.render(matrices, vertices, light, overlay, color);
 		right_leg.render(matrices, vertices, light, overlay, color);
 	}
