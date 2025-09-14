@@ -28,8 +28,13 @@ public class StatueSliderWidget extends SliderWidget {
 
     protected void applyValue() {
         System.out.println(bodyPart);
-        UpdateStatueC2SPayload payload = new UpdateStatueC2SPayload(this.statue.getId(), (float)this.value*6.25f, this.bodyPart, this.axis);
+        UpdateStatueC2SPayload payload = new UpdateStatueC2SPayload(this.statue.getId(), (float)this.value, this.bodyPart, this.axis);
         ClientPlayNetworking.send(payload);
-        StatuePosingUtil.setStatueRot(this.statue, (float)this.value*6.25f, this.bodyPart, this.axis);
+        if(bodyPart == 6) {
+            statue.setYaw((float) (this.value * 359f));
+            statue.prevYaw = (float) (this.value * 359f);
+        }else {
+            StatuePosingUtil.setStatueRot(this.statue, (float) this.value * 6.25f, this.bodyPart, this.axis);
+        }
     }
 }

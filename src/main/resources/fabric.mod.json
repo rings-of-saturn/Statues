@@ -43,7 +43,8 @@
       "statues:right_leg_angle",
       "statues:left_leg_angle",
       "statues:head_angle",
-      "statues:body_angle"
+      "statues:body_angle",
+      "statues:yaw"
     ]
   }
 }

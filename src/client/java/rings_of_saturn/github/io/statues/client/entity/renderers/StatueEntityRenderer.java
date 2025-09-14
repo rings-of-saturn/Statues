@@ -4,6 +4,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rings_of_saturn.github.io.statues.client.entity.models.StatueEntityModel;
 import rings_of_saturn.github.io.statues.entity.custom.StatueEntity;
@@ -19,6 +20,12 @@ public class StatueEntityRenderer extends LivingEntityRenderer<StatueEntity, Sta
 
     public StatueEntityRenderer(EntityRendererFactory.Context context) {
         super(context, new StatueEntityModel(context.getPart(StatueEntityModel.LAYER)), 0f);
+    }
+
+    @Override
+    protected void renderLabelIfPresent(StatueEntity entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float tickDelta) {
+        if(entity.hasCustomName())
+            super.renderLabelIfPresent(entity, text, matrices, vertexConsumers, light, tickDelta);
     }
 
     @Override
