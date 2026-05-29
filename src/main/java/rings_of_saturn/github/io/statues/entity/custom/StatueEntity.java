@@ -2,19 +2,24 @@ package rings_of_saturn.github.io.statues.entity.custom;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
+import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -27,6 +32,9 @@ import org.jetbrains.annotations.Nullable;
 import rings_of_saturn.github.io.statues.entity.ModEntities;
 import rings_of_saturn.github.io.statues.item.ModItems;
 import rings_of_saturn.github.io.statues.networking.packets.s2c.OpenStatueScreenS2CPayload;
+import rings_of_saturn.github.io.statues.util.MathUtil;
+import rings_of_saturn.github.io.statues.util.StatuePosingUtil;
+import rings_of_saturn.github.io.statues.util.WatchingUtil;
 
 import java.util.function.Predicate;
 
@@ -64,30 +72,18 @@ public class StatueEntity extends LivingEntity {
     }
 
     @Override
+    public Arm getMainArm() {
+        return Arm.RIGHT;
+    }
+
+    @Override
     public Box getBoundingBox(EntityPose pose) {
         return new Box(0.0F, 0.0F, 0.0F, 1.5F,1.8f, 1.5F);
     }
 
-    @Override
-    protected void tickCramming() {
-        for(Entity entity : this.getWorld().getOtherEntities(this, this.getBoundingBox(), RIDEABLE_MINECART_PREDICATE)) {
-            if (this.squaredDistanceTo(entity) <= 0.2) {
-                entity.pushAwayFrom(this);
-            }
-        }
-
-    }
-
-    @Override
-    public boolean damage(DamageSource source, float amount) {
-        if(source.isSourceCreativePlayer())
-            this.kill();
-        return super.damage(source, amount);
-    }
-
     public ActionResult interactAt(PlayerEntity player, Vec3d hitPos, Hand hand) {
-        ItemStack itemStack = player.getStackInHand(hand);
-        if(itemStack.isEmpty() && player.isSneaking()){
+        ItemStack stack = player.getStackInHand(hand);
+        if(stack.isEmpty() && player.isSneaking()){
             if(!player.getWorld().isClient()) {
                 OpenStatueScreenS2CPayload payload = new OpenStatueScreenS2CPayload(this.getId());
                 ServerPlayerEntity serverPlayer = player.getServer().getPlayerManager().getPlayer(player.getUuid());
@@ -95,36 +91,47 @@ public class StatueEntity extends LivingEntity {
                     ServerPlayNetworking.send(serverPlayer, payload);
                 }
             }
-        }
-        if (!itemStack.isOf(Items.NAME_TAG) && !player.isSneaking()) {
-            if (player.isSpectator()) {
-                return ActionResult.SUCCESS;
-            } else if (player.getWorld().isClient) {
-                return ActionResult.CONSUME;
-            } else {
-                EquipmentSlot equipmentSlot = this.getPreferredEquipmentSlot(itemStack);
-                if (itemStack.isEmpty()) {
-                    EquipmentSlot equipmentSlot3 = this.getSlotFromPosition(hitPos);
-                    if (this.hasStackEquipped(equipmentSlot3) && this.equip(player, equipmentSlot3, itemStack, hand)) {
-                        return ActionResult.SUCCESS;
-                    }
-                } else {
-                    if (equipmentSlot.getType() == EquipmentSlot.Type.HAND) {
-                        return ActionResult.FAIL;
-                    }
-
-                    if (this.equip(player, equipmentSlot, itemStack, hand)) {
-                        return ActionResult.SUCCESS;
+        } else {
+            if(!player.getWorld().isClient() && !this.getWorld().isClient()) {
+                if(this.getSlotFromPosition(hitPos) == EquipmentSlot.CHEST
+                        && MathUtil.isInRange(player.getFacing().getHorizontal(), this.getFacing().getHorizontal(), 4)){
+                    if(WatchingUtil.getWatching(this)) {
+                        player.giveItemStack(new ItemStack(Items.ENDER_EYE, 1));
+                        WatchingUtil.setWatching(this, false);
+                        return ActionResult.SUCCESS_NO_ITEM_USED;
+                    } else if(stack.getItem() == Items.ENDER_EYE){
+                        stack.decrementUnlessCreative(1, player);
+                        WatchingUtil.setWatching(this, true);
+                        player.sendMessage(Text.of("Ender Eye"));
+                        return ActionResult.CONSUME_PARTIAL;
                     }
                 }
-
-                return ActionResult.PASS;
+                player.sendMessage(Text.of(this.getSlotFromPosition(hitPos).name() + ", " + this.getSlotFromPosition(hitPos).getType().name()));
+                this.equip(player, this.getSlotFromPosition(hitPos), stack.copyWithCount(1), hand);
+                stack.decrementUnlessCreative(1, player);
+                return ActionResult.CONSUME;
             }
-        } else {
-            return ActionResult.PASS;
         }
+        player.sendMessage(Text.of(String.valueOf(hitPos)), true);
+        return ActionResult.FAIL;
     }
 
+    //region Watching Feature
+
+    @Override
+    public void tick() {
+        if(WatchingUtil.getWatching(this)) {
+            if (!this.getWorld().isClient() && this.getWorld().isPlayerInRange(this.getX(), this.getY(), this.getZ(), 8)) {
+                StatuePosingUtil.setStatueRot(this, MathUtil.lookAt(this.getPos(), this.getWorld().getClosestPlayer(this, 8).getPos())+this.getYaw(), (byte) 4, (byte) 1);
+            }
+        }
+        super.tick();
+    }
+
+
+    //endregion
+
+    //region Equipment
     private boolean equip(PlayerEntity player, EquipmentSlot slot, ItemStack stack, Hand hand) {
         ItemStack itemStack = this.getEquippedStack(slot);
         if (itemStack.isEmpty() && !stack.isEmpty()) {
@@ -147,46 +154,19 @@ public class StatueEntity extends LivingEntity {
     private EquipmentSlot getSlotFromPosition(Vec3d hitPos) {
         EquipmentSlot equipmentSlot = EquipmentSlot.MAINHAND;
         double d = hitPos.y / (double)(this.getScale() * this.getScaleFactor());
-        EquipmentSlot equipmentSlot2 = EquipmentSlot.FEET;
-        if (d >= 0.1 && d < 0.1 + 0.8 && this.hasStackEquipped(equipmentSlot2)) {
+        if (d >= 0 && d <= 0.25) {
             equipmentSlot = EquipmentSlot.FEET;
-        } else if (d >= 0.9 + 0.3 && d < 0.9 + (double)1.0F && this.hasStackEquipped(EquipmentSlot.CHEST)) {
-            equipmentSlot = EquipmentSlot.CHEST;
-        } else if (d >= 0.4 && d < 0.4 + (double)1.0F && this.hasStackEquipped(EquipmentSlot.LEGS)) {
+        } else if (d >= 0.25 && d <= 0.7) {
             equipmentSlot = EquipmentSlot.LEGS;
-        } else if (d >= 1.6 && this.hasStackEquipped(EquipmentSlot.HEAD)) {
-            equipmentSlot = EquipmentSlot.HEAD;
-        } else if (!this.hasStackEquipped(EquipmentSlot.MAINHAND) && this.hasStackEquipped(EquipmentSlot.OFFHAND)) {
+        } else if (d >= 1 && d <= 1.5) {
+            equipmentSlot = EquipmentSlot.CHEST;
+        } else if ((d >= 0.7 && d <= 1) && this.hasStackEquipped(EquipmentSlot.MAINHAND)) {
             equipmentSlot = EquipmentSlot.OFFHAND;
+        } else if (d >= 1.5) {
+            equipmentSlot = EquipmentSlot.HEAD;
         }
 
         return equipmentSlot;
-    }
-
-    @Override
-    public boolean isPushable() {
-        return false;
-    }
-
-    @Override
-    public boolean isPushedByFluids() {
-        return true;
-    }
-
-    @Override
-    protected void pushAway(Entity entity) {
-    }
-
-    @Override
-    public void kill() {
-        if(!this.getWorld().isClient()) {
-            this.getWorld().getServer().getWorld(this.getWorld().getRegistryKey())
-                    .spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.STONE.getDefaultState()), this.getX(), this.getY(), this.getZ(), 20, 0.5, 1.5, 0.5, 0);
-            this.getWorld().getServer().getWorld(this.getWorld().getRegistryKey())
-                    .spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, this.getX(), this.getY(), this.getZ(), 3, 0.25, 0, 0.25, 0);
-        }
-        this.remove(RemovalReason.KILLED);
-        this.emitGameEvent(GameEvent.ENTITY_DIE);
     }
 
     @Override
@@ -222,7 +202,6 @@ public class StatueEntity extends LivingEntity {
         for(ItemStack itemStack : this.armorItems) {
             armorList.add(itemStack.encodeAllowEmpty(this.getRegistryManager()));
         }
-
         nbt.put("ArmorItems", armorList);
         NbtList handItemList = new NbtList();
 
@@ -269,12 +248,96 @@ public class StatueEntity extends LivingEntity {
         return this.getEquippedStack(equipmentSlot).isEmpty();
     }
 
+
     @Override
-    public Arm getMainArm() {
-        return Arm.RIGHT;
+    protected void dropInventory() {
+        for (int i = 0; i < armorItems.toArray().length; i++) {
+            this.dropStack(armorItems.get(i));
+            armorItems.set(i, ItemStack.EMPTY);
+        }
+
+        for (int i = 0; i < heldItems.toArray().length; i++) {
+            this.dropStack(heldItems.get(i));
+            heldItems.set(i, ItemStack.EMPTY);
+        }
+
+        if(WatchingUtil.getWatching(this)){
+            this.dropStack(new ItemStack(Items.ENDER_EYE, 1));
+        }
+    }
+
+    //endregion
+
+
+    //region Invulnerability & Unmoving
+
+    @Override
+    protected void tickCramming() {
+        for(Entity entity : this.getWorld().getOtherEntities(this, this.getBoundingBox(), RIDEABLE_MINECART_PREDICATE)) {
+            if (this.squaredDistanceTo(entity) <= 0.2) {
+                entity.pushAwayFrom(this);
+            }
+        }
+
+    }
+
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        if(source.isSourceCreativePlayer())
+            this.kill();
+        if(source.getAttacker().isPlayer() && source.getWeaponStack().isIn(ItemTags.PICKAXES)){
+            this.kill();
+            if(source.getWeaponStack().isDamageable()){
+                source.getWeaponStack().damage(1, this, EquipmentSlot.MAINHAND);
+            }
+        }
+        return super.damage(source, amount);
+    }
+
+    @Override
+    public boolean isInvulnerable() {
+        return true;
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        return true;
+    }
+
+    @Override
+    public boolean isPushable() {
+        return false;
+    }
+
+    @Override
+    public boolean isPushedByFluids() {
+        return false;
+    }
+
+    @Override
+    protected void pushAway(Entity entity) {
+    }
+
+    @Override
+    public ProjectileDeflection getProjectileDeflection(ProjectileEntity projectile) {
+        return ProjectileDeflection.SIMPLE;
+    }
+
+    @Override
+    public void kill() {
+        if(!this.getWorld().isClient()) {
+            this.getWorld().getServer().getWorld(this.getWorld().getRegistryKey())
+                    .spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.STONE.getDefaultState()), this.getX(), this.getY(), this.getZ(), 20, 0.5, 1.5, 0.5, 0);
+            this.getWorld().getServer().getWorld(this.getWorld().getRegistryKey())
+                    .spawnParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, this.getX(), this.getY()+1, this.getZ(), 6, 0.25, 0.75, 0.25, 0);
+            this.dropInventory();
+        }
+        this.remove(RemovalReason.KILLED);
+        this.emitGameEvent(GameEvent.ENTITY_DIE);
     }
 
     static {
         RIDEABLE_MINECART_PREDICATE = (entity) -> entity instanceof AbstractMinecartEntity && ((AbstractMinecartEntity)entity).getMinecartType() == net.minecraft.entity.vehicle.AbstractMinecartEntity.Type.RIDEABLE;
     }
+    //endregion
 }

@@ -6,11 +6,11 @@ import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import rings_of_saturn.github.io.statues.entity.components.ModComponents;
 import rings_of_saturn.github.io.statues.entity.components.custom.types.BooleanComponent;
 
-public class SlimComponent implements BooleanComponent, AutoSyncedComponent {
+public class WatchingComponent implements BooleanComponent, AutoSyncedComponent {
     private boolean value;
     private final Object provider;
 
-    public SlimComponent(Object provider) {
+    public WatchingComponent(Object provider) {
         this.provider = provider;
     }
 
@@ -22,7 +22,7 @@ public class SlimComponent implements BooleanComponent, AutoSyncedComponent {
     @Override
     public void set(boolean newValue) {
         this.value = newValue;
-        ModComponents.SLIM.sync(provider);
+        ModComponents.WATCHING.sync(provider);
     }
 
     @Override

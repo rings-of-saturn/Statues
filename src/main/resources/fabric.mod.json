@@ -38,6 +38,7 @@
   "custom": {
     "cardinal-components": [
       "statues:slim",
+      "statues:watching",
       "statues:right_arm_angle",
       "statues:left_arm_angle",
       "statues:right_leg_angle",

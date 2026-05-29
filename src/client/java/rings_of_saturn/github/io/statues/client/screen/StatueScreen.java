@@ -1,5 +1,6 @@
 package rings_of_saturn.github.io.statues.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -10,11 +11,17 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
+import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.lwjgl.system.MathUtil;
 import rings_of_saturn.github.io.statues.client.screen.widget.StatueSliderWidget;
 import rings_of_saturn.github.io.statues.entity.custom.StatueEntity;
 import rings_of_saturn.github.io.statues.networking.packets.c2s.CopyStatueC2SPayload;
@@ -40,55 +47,55 @@ public class StatueScreen extends Screen {
     protected void init() {
         byte bodyPart = 0;
         StatueSliderWidget rightArmSliderX = new StatueSliderWidget(width/2+sideCorrection+bgSideCorrection, height/2 + 17 + centerCorrection,64,16, Text.literal("X"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25, statue, bodyPart, (byte)0);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25f, statue, bodyPart, (byte)0);
         StatueSliderWidget rightArmSliderY = new StatueSliderWidget(width/2+sideCorrection+bgSideCorrection, height/2 + 34 + centerCorrection,64,16, Text.literal("Y"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25, statue, bodyPart, (byte)1);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25f, statue, bodyPart, (byte)1);
         StatueSliderWidget rightArmSliderZ = new StatueSliderWidget(width/2+sideCorrection+bgSideCorrection, height/2 + 51 + centerCorrection,64,16, Text.literal("Z"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25, statue, bodyPart, (byte)2);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25f, statue, bodyPart, (byte)2);
         addDrawableChild(rightArmSliderX);
         addDrawableChild(rightArmSliderY);
         addDrawableChild(rightArmSliderZ);
 
         bodyPart = 1;
         StatueSliderWidget leftArmSliderX = new StatueSliderWidget(width/2-sideCorrection+bgSideCorrection, height/2 + 17 + centerCorrection,64,16, Text.literal("X"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25, statue, bodyPart, (byte)0);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25f, statue, bodyPart, (byte)0);
         StatueSliderWidget leftArmSliderY = new StatueSliderWidget(width/2-sideCorrection+bgSideCorrection, height/2 + 34 + centerCorrection,64,16, Text.literal("Y"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25, statue, bodyPart, (byte)1);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25f, statue, bodyPart, (byte)1);
         StatueSliderWidget leftArmSliderZ = new StatueSliderWidget(width/2-sideCorrection+bgSideCorrection, height/2 + 51 + centerCorrection,64,16, Text.literal("Z"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25, statue, bodyPart, (byte)2);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25f, statue, bodyPart, (byte)2);
         addDrawableChild(leftArmSliderX);
         addDrawableChild(leftArmSliderY);
         addDrawableChild(leftArmSliderZ);
 
         bodyPart = 2;
         StatueSliderWidget rightLegSliderX = new StatueSliderWidget(width/2+sideCorrection+bgSideCorrection, height/2 + 17 - 100 + centerCorrection,64,16, Text.literal("X"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25, statue, bodyPart, (byte)0);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25f, statue, bodyPart, (byte)0);
         StatueSliderWidget rightLegSliderY = new StatueSliderWidget(width/2+sideCorrection+bgSideCorrection, height/2 + 34 - 100 + centerCorrection,64,16, Text.literal("Y"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25, statue, bodyPart, (byte)1);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25f, statue, bodyPart, (byte)1);
         StatueSliderWidget rightLegSliderZ = new StatueSliderWidget(width/2+sideCorrection+bgSideCorrection, height/2 + 51 - 100 + centerCorrection,64,16, Text.literal("Z"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25, statue, bodyPart, (byte)2);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25f, statue, bodyPart, (byte)2);
         addDrawableChild(rightLegSliderX);
         addDrawableChild(rightLegSliderY);
         addDrawableChild(rightLegSliderZ);
 
         bodyPart = 3;
         StatueSliderWidget leftLegSliderX = new StatueSliderWidget(width/2-sideCorrection+bgSideCorrection, height/2 + 17 - 100 + centerCorrection,64,16, Text.literal("X"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25, statue, bodyPart, (byte)0);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25f, statue, bodyPart, (byte)0);
         StatueSliderWidget leftLegSliderY = new StatueSliderWidget(width/2-sideCorrection+bgSideCorrection, height/2 + 34 - 100 + centerCorrection,64,16, Text.literal("Y"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25, statue, bodyPart, (byte)1);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25f, statue, bodyPart, (byte)1);
         StatueSliderWidget leftLegSliderZ = new StatueSliderWidget(width/2-sideCorrection+bgSideCorrection, height/2 + 51 - 100 + centerCorrection,64,16, Text.literal("Z"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25, statue, bodyPart, (byte)2);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25f, statue, bodyPart, (byte)2);
         addDrawableChild(leftLegSliderX);
         addDrawableChild(leftLegSliderY);
         addDrawableChild(leftLegSliderZ);
 
         bodyPart = 4;
         StatueSliderWidget headSliderX = new StatueSliderWidget(width/2+bgSideCorrection, height/2 + 17 - 190 + centerCorrection,64,16, Text.literal("X"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25, statue, bodyPart, (byte)0);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 0)/6.25f, statue, bodyPart, (byte)0);
         StatueSliderWidget headSliderY = new StatueSliderWidget(width/2+bgSideCorrection, height/2 + 34 - 190 + centerCorrection,64,16, Text.literal("Y"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25, statue, bodyPart, (byte)1);
+                (StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 1)/6.25f), statue, bodyPart, (byte)1);
         StatueSliderWidget headSliderZ = new StatueSliderWidget(width/2+bgSideCorrection, height/2 + 51 - 190 + centerCorrection,64,16, Text.literal("Z"),
-                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25, statue, bodyPart, (byte)2);
+                StatuePosingUtil.getStatueRotInAxis(statue, bodyPart, (byte) 2)/6.25f, statue, bodyPart, (byte)2);
         addDrawableChild(headSliderX);
         addDrawableChild(headSliderY);
         addDrawableChild(headSliderZ);
@@ -157,7 +164,7 @@ public class StatueScreen extends Screen {
         context.drawTextWithShadow(client.textRenderer, Text.literal("Left Leg"), width/2-100+bgSideCorrection, height/2-100+centerCorrection, ColorHelper.Argb.getArgb(255,255,255));
         context.drawTextWithShadow(client.textRenderer, Text.literal("Head"), width/2+bgSideCorrection, height/2-190+centerCorrection, ColorHelper.Argb.getArgb(255,255,255));
 
-        InventoryScreen.drawEntity(context, (float) width /2, (float) height /2, (float) (client.getWindow().getScaleFactor()*25), new Vector3f(), new Quaternionf().rotationXYZ(0, 180, (float)Math.PI), new Quaternionf().rotationXYZ(0, 180, (float)Math.PI), statue);
+        this.drawEntity(context, (float) width /2, (float) height /2, (float) (client.getWindow().getScaleFactor()*17.5), new Quaternionf().rotationXYZ(180/MathHelper.DEGREES_PER_RADIAN, (  client.player.getYaw()-180)/MathHelper.DEGREES_PER_RADIAN, 0), statue);
         super.render(context, mouseX, mouseY, delta);
     }
 
@@ -173,5 +180,20 @@ public class StatueScreen extends Screen {
     public void reOpen(){
         this.close();
         client.setScreen(this);
+    }
+
+    public void drawEntity(DrawContext context, float x, float y, float size, Quaternionf quaternionf, LivingEntity entity){
+        context.getMatrices().push();
+        context.getMatrices().translate(x, y, 50.0d);
+        context.getMatrices().scale(size, size, -size);
+        context.getMatrices().multiply(quaternionf);
+        DiffuseLighting.method_34742();
+        EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+        entityRenderDispatcher.setRenderShadows(false);
+        RenderSystem.runAsFancy(() -> entityRenderDispatcher.render(entity, (double)0.0F, (double)0.0F, (double)0.0F, 0.0F, 1.0F, context.getMatrices(), context.getVertexConsumers(), 15728880));
+        context.draw();
+        entityRenderDispatcher.setRenderShadows(true);
+        context.getMatrices().pop();
+        DiffuseLighting.enableGuiDepthLighting();
     }
 }

@@ -3,23 +3,29 @@ package rings_of_saturn.github.io.statues.client.entity.renderers;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
+import net.minecraft.client.render.entity.feature.ElytraFeatureRenderer;
+import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
+import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import rings_of_saturn.github.io.statues.client.entity.models.StatueArmorEntityModel;
 import rings_of_saturn.github.io.statues.client.entity.models.StatueEntityModel;
+import rings_of_saturn.github.io.statues.client.entity.renderers.features.EnderEyeFeatureRenderer;
 import rings_of_saturn.github.io.statues.entity.custom.StatueEntity;
 import rings_of_saturn.github.io.statues.util.StatuePosingUtil;
 
 import static rings_of_saturn.github.io.statues.Statues.MOD_ID;
 
 public class StatueEntityRenderer extends LivingEntityRenderer<StatueEntity, StatueEntityModel> {
-
-    public StatueEntityRenderer(EntityRendererFactory.Context ctx, StatueEntityModel model, float shadowRadius) {
-        super(ctx, model, shadowRadius);
-    }
-
-    public StatueEntityRenderer(EntityRendererFactory.Context context) {
-        super(context, new StatueEntityModel(context.getPart(StatueEntityModel.LAYER)), 0f);
+    public StatueEntityRenderer(EntityRendererFactory.Context ctx) {
+        super(ctx, new StatueEntityModel(ctx.getPart(StatueEntityModel.LAYER)), 0f);
+        this.addFeature(new EnderEyeFeatureRenderer<>(this, ctx.getBlockRenderManager()));
+        this.addFeature(new ArmorFeatureRenderer<>(this, new StatueArmorEntityModel(ctx.getPart(StatueArmorEntityModel.ARMOR_INNER)), new StatueArmorEntityModel(ctx.getPart(StatueArmorEntityModel.ARMOR_OUTER)), ctx.getModelManager()));
+        this.addFeature(new HeldItemFeatureRenderer<>(this, ctx.getHeldItemRenderer()));
+        this.addFeature(new ElytraFeatureRenderer<>(this, ctx.getModelLoader()));
+        this.addFeature(new HeadFeatureRenderer<>(this, ctx.getModelLoader(), ctx.getHeldItemRenderer()));
     }
 
     @Override

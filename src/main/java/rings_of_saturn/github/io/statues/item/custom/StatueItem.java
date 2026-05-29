@@ -30,7 +30,6 @@ public class StatueItem extends Item {
             ItemStack itemStack = context.getStack();
             BlockPos blockPos = context.getBlockPos();
             Direction direction = context.getSide();
-            Direction facing = context.getPlayer().getFacing().getOpposite();
             BlockState blockState = world.getBlockState(blockPos);
             BlockPos blockPos2;
             if (blockState.getCollisionShape(world, blockPos).isEmpty()) {
@@ -41,7 +40,6 @@ public class StatueItem extends Item {
             StatueEntity statue = ModEntities.STATUE.spawnFromItemStack((ServerWorld)world, itemStack, context.getPlayer(), blockPos2, SpawnReason.SPAWN_EGG, true, !Objects.equals(blockPos, blockPos2) && direction == Direction.UP);
 
             if (statue != null) {
-                statue.setPitch(context.getPlayer().getPitch());
                 itemStack.decrementUnlessCreative(1, context.getPlayer());
                 world.emitGameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, blockPos);
             }

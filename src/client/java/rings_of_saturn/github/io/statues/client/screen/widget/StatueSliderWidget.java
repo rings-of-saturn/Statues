@@ -15,7 +15,7 @@ public class StatueSliderWidget extends SliderWidget {
     private final byte bodyPart;
     private final byte axis;
 
-    public StatueSliderWidget(int x, int y, int width, int height, Text text, double value, StatueEntity statue, byte bodyPart, byte axis) {
+    public StatueSliderWidget(int x, int y, int width, int height, Text text, float value, StatueEntity statue, byte bodyPart, byte axis) {
         super(x, y, width, height, text, value);
         this.statue = statue;
         this.bodyPart = bodyPart;

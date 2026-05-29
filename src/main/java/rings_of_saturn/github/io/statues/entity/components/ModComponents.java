@@ -8,6 +8,7 @@ import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
 import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 import rings_of_saturn.github.io.statues.entity.components.custom.AngleComponent;
 import rings_of_saturn.github.io.statues.entity.components.custom.SlimComponent;
+import rings_of_saturn.github.io.statues.entity.components.custom.WatchingComponent;
 import rings_of_saturn.github.io.statues.entity.components.custom.YawComponent;
 import rings_of_saturn.github.io.statues.entity.custom.StatueEntity;
 
@@ -30,24 +31,27 @@ public class ModComponents implements EntityComponentInitializer {
             ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "yaw"), YawComponent.class);
     public static final ComponentKey<SlimComponent> SLIM =
             ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "slim"), SlimComponent.class);
+    public static final ComponentKey<WatchingComponent> WATCHING =
+            ComponentRegistry.getOrCreate(Identifier.of(MOD_ID, "watching"), WatchingComponent.class);
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry entityComponentFactoryRegistry) {
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, LEFT_ARM_ANGLE, statueEntity -> new AngleComponent());
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, RIGHT_ARM_ANGLE, statueEntity -> new AngleComponent());
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, LEFT_LEG_ANGLE, statueEntity -> new AngleComponent());
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, RIGHT_LEG_ANGLE, statueEntity -> new AngleComponent());
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, HEAD_ANGLE, statueEntity -> new AngleComponent());
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, BODY_ANGLE, statueEntity -> new AngleComponent());
-        entityComponentFactoryRegistry.registerFor(StatueEntity.class, SLIM, statueEntity -> new SlimComponent());
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, LEFT_ARM_ANGLE, AngleComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, RIGHT_ARM_ANGLE, AngleComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, LEFT_LEG_ANGLE, AngleComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, RIGHT_LEG_ANGLE, AngleComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, HEAD_ANGLE, AngleComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, BODY_ANGLE, AngleComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, SLIM, SlimComponent::new);
+        entityComponentFactoryRegistry.registerFor(StatueEntity.class, WATCHING, WatchingComponent::new);
 
-        entityComponentFactoryRegistry.registerForPlayers(LEFT_ARM_ANGLE, player -> new AngleComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(RIGHT_ARM_ANGLE, player -> new AngleComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(LEFT_LEG_ANGLE, player -> new AngleComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(RIGHT_LEG_ANGLE, player -> new AngleComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(HEAD_ANGLE, player -> new AngleComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(BODY_ANGLE, player -> new AngleComponent(), RespawnCopyStrategy.ALWAYS_COPY);
-        entityComponentFactoryRegistry.registerForPlayers(YAW, player -> new YawComponent(), RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(LEFT_ARM_ANGLE, AngleComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(RIGHT_ARM_ANGLE, AngleComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(LEFT_LEG_ANGLE, AngleComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(RIGHT_LEG_ANGLE, AngleComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(HEAD_ANGLE, AngleComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(BODY_ANGLE, AngleComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+        entityComponentFactoryRegistry.registerForPlayers(YAW, YawComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
 
 
     }
